@@ -125,10 +125,28 @@ namespace ProjEnv
                 {
                     // TODO: here you need to compute light sh of each face of cubemap of each pixel
                     // TODO: 此处你需要计算每个像素下cubemap某个面的球谐系数
-                    Eigen::Vector3f dir = cubemapDirs[i * width * height + y * width + x];
+                    Eigen::Vector3f dir = cubemapDirs[i * width * height + y * width + x];//第i张图中(x,y)坐标的方向
                     int index = (y * width + x) * channel;
                     Eigen::Array3f Le(images[i][index + 0], images[i][index + 1],
                                       images[i][index + 2]);
+
+                    
+                    //这个cubemap的这个像素的矩形区域投影到单位球面的面积
+                    float wOmege = CalcArea(x, y, width, height);
+                    for (int l = 0; l <= SHOrder; l++)
+                    {
+                        for (int m = -l; m <= l; m++)//是-L不是负一 l=0时m为0；l=1时m为[-1,1]；l=2时m为[-2,2]
+                        {
+                            int k = sh::GetIndex(l, m);//k是0,1,2,3这样子从上到下从左到右排
+                            double basisFunc = sh::EvalSH(l, m, dir.cast<double>().normalized());//相当于每个SH基函数B(Wi),其中Wi就是指对应方向,返回就是该SH基函数在Wi方向上的值
+                            SHCoeffiecents[k] += Le * wOmege * basisFunc;//可以把Le*wOmege想象成环境球上很小的一片
+                            //假设把上面两个for注释掉，即只有l=0 m=0这一个SH基函数。那么求该环境光Le投影到这个基函数的系数，就是：
+                            //整个Le与这个基函数的product integral（即乘积的积分）的结果，用黎曼累加方法解这个product integral
+                            //所以系数SHCoeffiecents是不断的累加整个CubeMap的和
+                            //因为采用黎曼方法解积分，所以微分dw就换成Δw，Δw就是立体角对应的面积除以半径平方，而在单位球上就是立体角对应的面积
+                            //这是其中一个SH基函数，如果有k个，就是上面中的每个k的意义
+                        }
+                    }
                 }
             }
         }
@@ -206,20 +224,30 @@ public:
             auto shFunc = [&](double phi, double theta) -> double {
                 Eigen::Array3d d = sh::ToVector(phi, theta);
                 const auto wi = Vector3f(d.x(), d.y(), d.z());
+                double H = wi.dot(n);
                 if (m_Type == Type::Unshadowed)
                 {
                     // TODO: here you need to calculate unshadowed transport term of a given direction
                     // TODO: 此处你需要计算给定方向下的unshadowed传输项球谐函数值
+                    if (H > 0)
+                    {
+                        return H;
+                    }
                     return 0;
                 }
                 else
                 {
                     // TODO: here you need to calculate shadowed transport term of a given direction
                     // TODO: 此处你需要计算给定方向下的shadowed传输项球谐函数值
+                    Ray3f ray(v, wi.normalized());
+                    if (H > 0 && !scene->rayIntersect(ray))
+                    {
+                        return H;//比上面多一个条件，增加了Visibility项的判断（非0即1），这条入射光是否和场景相交，相交则被遮挡
+                    }
                     return 0;
                 }
             };
-            auto shCoeff = sh::ProjectFunction(SHOrder, shFunc, m_SampleCount);
+            auto shCoeff = sh::ProjectFunction(SHOrder, shFunc, m_SampleCount);//cos项投影到SH基函数中去
             for (int j = 0; j < shCoeff->size(); j++)
             {
                 m_TransportSHCoeffs.col(i).coeffRef(j) = (*shCoeff)[j];
