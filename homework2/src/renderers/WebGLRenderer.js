@@ -61,8 +61,29 @@ class WebGLRenderer {
 
                     // Bonus - Fast Spherical Harmonic Rotation
                     //let precomputeL_RGBMat3 = getRotationPrecomputeL(precomputeL[guiParams.envmapId], cameraModelMatrix);
-                    
-                    
+                    let precomputeL_RGBMat3 = getMat3ValueFromRGB(precomputeL[guiParams.envmapId]);
+                    if(k == 'uPrecomputeLR'){
+                        //console.log('uPrecomputeLR');
+                        gl.uniformMatrix3fv(
+                            this.meshes[i].shader.program.uniforms[k],
+                            false,
+                            precomputeL_RGBMat3[0]//把上面得到的结果的0元素赋值给shader中的uPrecomputeLR uniform变量
+                        );
+                    }
+                    if(k == 'uPrecomputeLG'){
+                        gl.uniformMatrix3fv(
+                            this.meshes[i].shader.program.uniforms[k],
+                            false,
+                            precomputeL_RGBMat3[1]
+                        );
+                    }
+                    if(k == 'uPrecomputeLB'){
+                        gl.uniformMatrix3fv(
+                            this.meshes[i].shader.program.uniforms[k],
+                            false,
+                            precomputeL_RGBMat3[2]
+                        );
+                    }
                 }
 
                 this.meshes[i].draw(this.camera);

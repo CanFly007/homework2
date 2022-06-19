@@ -69,23 +69,24 @@ class MeshRender {
 				this.shader.program.attribs[this.mesh.verticesName]);
 		}
 
-		if (this.mesh.hasNormals) {
-			const numComponents = 3;
-			const type = gl.FLOAT;
-			const normalize = false;
-			const stride = 0;
-			const offset = 0;
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.#normalBuffer);
-			gl.vertexAttribPointer(
-				this.shader.program.attribs[this.mesh.normalsName],
-				numComponents,
-				type,
-				normalize,
-				stride,
-				offset);
-			gl.enableVertexAttribArray(
-				this.shader.program.attribs[this.mesh.normalsName]);
-		}
+		//不注释会报Index of ragne超出错误
+		// if (this.mesh.hasNormals) {
+		// 	const numComponents = 3;
+		// 	const type = gl.FLOAT;
+		// 	const normalize = false;
+		// 	const stride = 0;
+		// 	const offset = 0;
+		// 	gl.bindBuffer(gl.ARRAY_BUFFER, this.#normalBuffer);
+		// 	gl.vertexAttribPointer(
+		// 		this.shader.program.attribs[this.mesh.normalsName],
+		// 		numComponents,
+		// 		type,
+		// 		normalize,
+		// 		stride,
+		// 		offset);
+		// 	gl.enableVertexAttribArray(
+		// 		this.shader.program.attribs[this.mesh.normalsName]);
+		// }
 
 		if (this.mesh.hasTexcoords) {
 			const numComponents = 2;
@@ -207,7 +208,9 @@ class MeshRender {
 	
 		for (var ii = 0; ii < 3; ++ii) {
 			gl.enableVertexAttribArray(this.shader.program.attribs['aPrecomputeLT'] + ii);
+			// void gl.vertexAttribPointer(index, size, type, normalized, stride, offset); stride表示9个float
 			gl.vertexAttribPointer(this.shader.program.attribs['aPrecomputeLT'] + ii, 3, gl.FLOAT, false, 36, ii * 12);
+			//每个顶点 都会在 shader 中绑定传入自己的 attribute mat3 类型的变量
 		}
 
 		// Bind geometry information

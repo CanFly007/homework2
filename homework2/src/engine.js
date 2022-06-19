@@ -83,39 +83,44 @@ async function GAMES202Main() {
 	}
 	// load skybox
 	loadOBJ(renderer, 'assets/testObj/', 'testObj', 'SkyBoxMaterial', skyBoxTransform);
-
+	console.log('+++++');
+	console.log(envmap.length);
 	// file parsing
-	// for (let i = 0; i < envmap.length; i++) {
+	for (let i = 0; i < envmap.length; i++) {
+		console.log(envmap[i]);
 
-	// 	let val = '';
-	// 	await this.loadShaderFile(envmap[i] + "/transport.txt").then(result => {
-	// 		val = result;
-	// 	});
+		let val = '';
+		await this.loadShaderFile(envmap[i] + "/transport.txt").then(result => {
+			val = result;
+		});
 
-	// 	let preArray = val.split(/[(\r\n)\r\n' ']+/);
-	// 	let lineArray = [];
-	// 	precomputeLT[i] = []
-	// 	for (let j = 1; j <= Number(preArray.length) - 2; j++) {
-	// 		precomputeLT[i][j - 1] = Number(preArray[j])
-	// 	}
-	// 	await this.loadShaderFile(envmap[i] + "/light.txt").then(result => {
-	// 		val = result;
-	// 	});
+		let preArray = val.split(/[(\r\n)\r\n' ']+/);
+		let lineArray = [];
+		precomputeLT[i] = []
+		for (let j = 1; j <= Number(preArray.length) - 2; j++) {
+			precomputeLT[i][j - 1] = Number(preArray[j])
+		}
 
-	// 	precomputeL[i] = val.split(/[(\r\n)\r\n]+/);
-	// 	precomputeL[i].pop();
-	// 	for (let j = 0; j < 9; j++) {
-	// 		lineArray = precomputeL[i][j].split(' ');
-	// 		for (let k = 0; k < 3; k++) {
-	// 			lineArray[k] = Number(lineArray[k]);
-	// 		}
-	// 		precomputeL[i][j] = lineArray;
-	// 	}
-	// }
+		await this.loadShaderFile(envmap[i] + "/light.txt").then(result => {
+			val = result;
+		});
+		precomputeL[i] = val.split(/[(\r\n)\r\n]+/);
+		precomputeL[i].pop();
+		for (let j = 0; j < 9; j++) {
+			lineArray = precomputeL[i][j].split(' ');
+			for (let k = 0; k < 3; k++) {
+				lineArray[k] = Number(lineArray[k]);
+			}
+			precomputeL[i][j] = lineArray;//lineArray是三个元素组成的一行，i表示是Indoor还是Skybox还是GraceCathedral，j表示共有9行
+		}
+	}
 
 	// TODO: load model - Add your Material here
-	// loadOBJ(renderer, 'assets/bunny/', 'bunny', 'addYourPRTMaterial', boxTransform);
-	// loadOBJ(renderer, 'assets/bunny/', 'bunny', 'addYourPRTMaterial', box2Transform);
+	// loadOBJ(renderer, 'assets/bunny/', 'bunny', 'PRTMaterial', boxTransform);
+	// loadOBJ(renderer, 'assets/bunny/', 'bunny', 'PRTMaterial', box2Transform);
+
+	// loadOBJ(renderer, 'assets/mary/', 'mary', 'PRTMaterial', boxTransform);
+	loadOBJ(renderer, 'assets/mary/', 'mary', 'PRTMaterial', box2Transform);
 
 	function createGUI() {
 		const gui = new dat.gui.GUI();

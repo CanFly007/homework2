@@ -14,7 +14,7 @@ function computeSquareMatrix_3by3(rotationMatrix){ // 计算方阵SA(-1) 3*3
 
 	// 3、用 R 旋转 ni - {R(ni)}
 
-
+	
 	// 4、R(ni) SH投影 - S
 
 	// 5、S*A_inverse
@@ -55,7 +55,7 @@ function mat4Matrix2mathMatrix(rotationMatrix){
 function getMat3ValueFromRGB(precomputeL){
 
     let colorMat3 = [];
-    for(var i = 0; i<3; i++){
+    for(var i = 0; i<3; i++){//i等于0表示9*3数组中的第一列，即全部SH阶的红色。i==1就表示全部SH阶绿色
         colorMat3[i] = mat3.fromValues( precomputeL[0][i], precomputeL[1][i], precomputeL[2][i],
 										precomputeL[3][i], precomputeL[4][i], precomputeL[5][i],
 										precomputeL[6][i], precomputeL[7][i], precomputeL[8][i] ); 
